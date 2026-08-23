@@ -28,7 +28,13 @@ const Register = () => {
       toast.success('Account created! Welcome aboard.');
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.detail || 'Registration failed');
+      const detail = err.response?.data?.detail || err.message || 'Unknown error';
+      console.error('Registration error:', err);
+      if (err.code === 'ERR_NETWORK') {
+        toast.error('Cannot connect to server. Backend may be waking up — try again in 30 seconds.');
+      } else {
+        toast.error(`Registration failed: ${detail}`);
+      }
     } finally {
       setSubmitting(false);
     }

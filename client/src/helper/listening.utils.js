@@ -71,7 +71,7 @@ const startListening = (setListening, navigate, fetchList, options = {}) => {
                 // For remove, we need to find the item first
                 const listEndpoint = target === 'cart' ? '/cart' : '/list';
                 const listRes = await client.get(listEndpoint);
-                const currentItems = listRes.data || [];
+                const currentItems = Array.isArray(listRes.data) ? listRes.data : (listRes.data.items || []);
 
                 for (const item of items) {
                     const found = currentItems.find(i =>

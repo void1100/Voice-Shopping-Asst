@@ -32,7 +32,7 @@ const List = () => {
         try {
             setLoading(true);
             const res = await client.get('/list');
-            setList(res.data.items || []);
+            setList(Array.isArray(res.data) ? res.data : (res.data.items || []));
         } catch (err) {
             toast.error('Failed to load your shopping list');
         } finally {
