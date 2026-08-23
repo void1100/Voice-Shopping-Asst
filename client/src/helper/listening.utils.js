@@ -94,18 +94,30 @@ const startListening = (setListening, navigate, fetchList, options = {}) => {
             } else if (action === 'search') {
                 const query = items.map(i => i.name).join(' ');
                 const filters = parsed.search_filters || {};
-                let url = `/?q=${encodeURIComponent(query)}`;
-                if (filters.price_min) url += `&price_min=${filters.price_min}`;
-                if (filters.price_max) url += `&price_max=${filters.price_max}`;
-                if (filters.qualifiers && filters.qualifiers.length > 0) {
-                    url += `&tags=${encodeURIComponent(filters.qualifiers.join(','))}`;
-                }
+                let url;
                 const filterDesc = [];
+
+                if (filters.category) {
+                    // Category-based search: use /products endpoint via category param
+                    url = `/?category=${encodeURIComponent(filters.category)}`;
+                    if (filters.price_min) url += `&price_min=${filters.price_min}`;
+                    if (filters.price_max) url += `&price_max=${filters.price_max}`;
+                    filterDesc.push(filters.category);
+                } else {
+                    // Product name search
+                    url = `/?q=${encodeURIComponent(query)}`;
+                    if (filters.price_min) url += `&price_min=${filters.price_min}`;
+                    if (filters.price_max) url += `&price_max=${filters.price_max}`;
+                    if (filters.qualifiers && filters.qualifiers.length > 0) {
+                        url += `&tags=${encodeURIComponent(filters.qualifiers.join(','))}`;
+                    }
+                    filterDesc.push(query);
+                }
+
                 if (filters.price_min) filterDesc.push(`above ₹${filters.price_min}`);
                 if (filters.price_max) filterDesc.push(`under ₹${filters.price_max}`);
                 if (filters.qualifiers?.length) filterDesc.push(filters.qualifiers.join(', '));
-                const desc = filterDesc.length ? ` (${filterDesc.join(', ')})` : '';
-                toast.info(`Searching for "${query}"${desc}...`);
+                toast.info(`Showing ${filterDesc.join(' ')}...`);
                 navigate(url);
             }
 

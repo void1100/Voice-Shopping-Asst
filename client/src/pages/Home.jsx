@@ -138,7 +138,7 @@ const Home = () => {
     useEffect(() => {
         if (urlCategory) {
             setActiveCategory(urlCategory);
-            fetchCategoryProducts(urlCategory);
+            fetchCategoryProducts(urlCategory, urlPriceMin, urlPriceMax);
         } else {
             setActiveCategory('');
             setCategoryProducts([]);
@@ -153,9 +153,12 @@ const Home = () => {
         fetchSuggestions();
     }, [initialQuery, urlCategory, urlPriceMin, urlPriceMax, urlTags]);
 
-    const fetchCategoryProducts = async (cat) => {
+    const fetchCategoryProducts = async (cat, pMin, pMax) => {
         try {
-            const res = await client.get(`/products?category=${encodeURIComponent(cat)}`);
+            let url = `/products?category=${encodeURIComponent(cat)}`;
+            if (pMin) url += `&price_min=${pMin}`;
+            if (pMax) url += `&price_max=${pMax}`;
+            const res = await client.get(url);
             setCategoryProducts(res.data.products || []);
         } catch (err) {
             console.error('Failed to fetch category products:', err);

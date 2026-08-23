@@ -129,6 +129,18 @@ QUALIFIER_PATTERNS = [
     r"\b(iceberg|romaine)\b",  # lettuce types
 ]
 
+# Category keywords for category-based search
+CATEGORY_KEYWORDS = {
+    "dairy": ["dairy", "dairy items", "dairy products", "milk products"],
+    "produce": ["produce", "fruits", "vegetables", "fruits and vegetables", "veggies", "fresh produce", "greens"],
+    "grains": ["grains", "cereals", "grains and cereals", "bread items", "bakery"],
+    "beverages": ["beverages", "drinks", "drinks items", "cold drinks", "hot drinks"],
+    "snacks": ["snacks", "snack items", "chips", "biscuits", "cookies", "chocolate"],
+    "cooking": ["cooking", "cooking essentials", "masala", "spices", "oil items", "kitchen items"],
+    "household": ["household", "household items", "cleaning", "cleaning supplies", "detergent items"],
+    "meat": ["meat", "meat and fish", "non veg", "non-veg", "chicken", "fish", "mutton"],
+}
+
 NUMBER_WORDS = {
     'one': 1, 'two': 2, 'three': 3, 'four': 4, 'five': 5,
     'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10,
@@ -382,6 +394,20 @@ def parse_voice_command_local(transcript):
     # Extract search-specific filters
     search_filters = {}
     if intent == "search":
+        # Detect category-based search
+        cleaned_transcript = transcript.lower().strip()
+        detected_category = None
+        for cat_key, keywords in CATEGORY_KEYWORDS.items():
+            for kw in keywords:
+                if re.search(rf'\b{re.escape(kw)}\b', cleaned_transcript):
+                    detected_category = cat_key
+                    break
+            if detected_category:
+                break
+
+        if detected_category:
+            search_filters["category"] = detected_category
+
         price_filter = extract_price_range(transcript)
         if price_filter:
             search_filters.update(price_filter)
