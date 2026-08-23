@@ -58,9 +58,7 @@ const ProductCard = ({ item, onAdd, onSubstitutes, index }) => {
                         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/75">Fresh pick</p>
                         <h3 className="mt-1 text-2xl font-black text-white capitalize drop-shadow-sm">{item.name}</h3>
                     </div>
-                    <div className="flex items-center gap-1 rounded-full bg-white/90 px-3 py-1 text-[10px] font-bold text-slate-700 shadow-sm backdrop-blur dark:bg-slate-900/85 dark:text-slate-200">
-                        <FaBolt className="text-emerald-500" /> 10 mins
-                    </div>
+
                 </div>
             </div>
 
