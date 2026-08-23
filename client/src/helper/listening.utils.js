@@ -3,6 +3,28 @@ import client from '../api/client';
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
+// Frontend fallback: detect category names in transcript
+const CATEGORY_KEYWORDS = {
+    dairy: ['dairy', 'milk products'],
+    produce: ['produce', 'fruits', 'vegetables', 'veggies', 'greens'],
+    grains: ['grains', 'cereals', 'bakery'],
+    beverages: ['beverages', 'drinks'],
+    snacks: ['snacks', 'snack'],
+    cooking: ['cooking', 'cooking essentials', 'masala', 'spices'],
+    household: ['household', 'cleaning'],
+    meat: ['meat', 'non veg', 'non-veg'],
+};
+
+function detectCategoryFromTranscript(text) {
+    const lower = text.toLowerCase();
+    for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+        for (const kw of keywords) {
+            if (lower.includes(kw)) return cat;
+        }
+    }
+    return null;
+}
+
 
 const startListening = (setListening, navigate, fetchList, options = {}) => {
     if (!SpeechRecognition) {
@@ -97,14 +119,15 @@ const startListening = (setListening, navigate, fetchList, options = {}) => {
                 let url;
                 const filterDesc = [];
 
-                if (filters.category) {
-                    // Category-based search: use /products endpoint via category param
-                    url = `/?category=${encodeURIComponent(filters.category)}`;
+                // Backend may detect category, or detect it on frontend as fallback
+                const category = filters.category || detectCategoryFromTranscript(transcript);
+
+                if (category) {
+                    url = `/?category=${encodeURIComponent(category)}`;
                     if (filters.price_min) url += `&price_min=${filters.price_min}`;
                     if (filters.price_max) url += `&price_max=${filters.price_max}`;
-                    filterDesc.push(filters.category);
+                    filterDesc.push(category);
                 } else {
-                    // Product name search
                     url = `/?q=${encodeURIComponent(query)}`;
                     if (filters.price_min) url += `&price_min=${filters.price_min}`;
                     if (filters.price_max) url += `&price_max=${filters.price_max}`;
